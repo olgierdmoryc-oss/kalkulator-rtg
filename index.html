@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Kalkulator osłon przed promieniowaniem X — pracownia radiografii przemysłowej. Zgodnie z PN-86/J-80001 i Prawem Atomowym (Art. 17).">
+<title>Kalkulator Osłon RTG · PN-86/J-80001</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg-primary:    #0a0e1a;
+  --bg-secondary:  #131826;
+  --bg-tertiary:   #1c2336;
+  --bg-accent:     #232b42;
+  --border:        #2a3349;
+  --border-light:  #3a4661;
+  
+  --text-primary:   #e6edf3;
+  --text-secondary: #8b95a8;
+  --text-muted:     #5a6478;
+  
+  --accent-cyan:   #00d4ff;
+  --accent-amber:  #ffb454;
+  --accent-green:  #6dd56d;
+  --accent-red:    #ff5066;
+  --accent-pink:   #ff66c4;
+  
+  --zone-forbidden: #c01030;
+  --zone-a:         #ff8855;
+  --zone-b:         #ffcc44;
+  --zone-free:      #6dd56d;
+  
+  --mono: 'JetBrains Mono', 'Consolas', monospace;
+  --sans: 'Space Grotesk', -apple-system, sans-serif;
+  
+  --shadow: 0 4px 16px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.55;
+  min-height: 100vh;
+  background-image:
+    radial-gradient(at 20% 0%, rgba(0,212,255,0.04) 0px, transparent 50%),
+    radial-gradient(at 80% 100%, rgba(255,180,84,0.03) 0px, transparent 50%);
+  background-attachment: fixed;
+}
+
+/* ============================================================
+   HEADER
+============================================================ */
+header {
+  border-bottom: 1px solid var(--border);
+  padding: 24px 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+  background: rgba(10, 14, 26, 0.85);
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.brand-mark {
+  width: 44px;
+  height: 44px;
+  border: 1.5px solid var(--accent-cyan);
+  display: grid;
+  place-items: center;
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--accent-cyan);
+  letter-spacing: -0.5px;
+  position: relative;
+}
+
+.brand-mark::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border: 1px solid var(--accent-cyan);
+  opacity: 0.3;
+}
+
+.brand h1 {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.brand h1 span {
+  color: var(--accent-cyan);
+  font-weight: 400;
+}
+
+.brand-meta {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-left: auto;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+@media (max-width: 640px) {
+  .brand-meta { width: 100%; margin-left: 0; margin-top: 8px; }
+}
+
+/* ============================================================
+   HERO / INTRO
+============================================================ */
+.hero {
+  padding: 64px 0 32px;
+  border-bottom: 1px solid var(--border);
+}
+
+.hero h2 {
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 300;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-bottom: 24px;
+  max-width: 800px;
+}
+
+.hero h2 strong {
+  font-weight: 600;
+  color: var(--accent-cyan);
+}
+
+.hero-meta {
+  display: flex;
+  gap: 32px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  flex-wrap: wrap;
+}
+
+.hero-meta span::before {
+  content: '◆';
+  color: var(--accent-cyan);
+  margin-right: 6px;
+  font-size: 8px;
+  vertical-align: middle;
+}
+
+/* ============================================================
+   GRID & SECTIONS
+============================================================ */
+main { padding: 32px 0 80px; }
+
+.section {
+  margin-bottom: 48px;
+}
+
+.section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.section-num {
+  font-family: var(--mono);
+  color: var(--accent-cyan);
+  font-size: 13px;
+  letter-spacing: 0.05em;
+}
+
+.section-header h3 {
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.section-header .badge {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border: 1px solid var(--border-light);
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+@media (max-width: 900px) {
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+}
+
+/* ============================================================
+   PANELS / CARDS
+============================================================ */
+.panel {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  padding: 24px;
+  position: relative;
+}
+
+.panel-title {
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px dashed var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.panel-title::before {
+  content: '▸';
+  color: var(--accent-cyan);
+}
+
+/* ============================================================
+   FORM CONTROLS
+============================================================ */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 140px;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(58, 70, 97, 0.3);
+}
+
+.form-row:last-child { border-bottom: none; }
+
+.form-row label {
+  font-size: 13px;
+  color: var(--text-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.form-row label small {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.input {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  color: var(--accent-cyan);
+  padding: 8px 12px;
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 500;
+  text-align: right;
+  transition: all 0.15s ease;
+  width: 100%;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--accent-cyan);
+  background: var(--bg-accent);
+  box-shadow: 0 0 0 1px var(--accent-cyan);
+}
+
+.input:hover { border-color: var(--border-light); }
+
+select.input {
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='%2300d4ff' d='M0 0l5 6 5-6z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 30px;
+  cursor: pointer;
+}
+
+/* ============================================================
+   RESULT BOXES
+============================================================ */
+.result-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.result {
+  background: var(--bg-tertiary);
+  padding: 14px 16px;
+  border-left: 2px solid var(--accent-cyan);
+}
+
+.result-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 4px;
+}
+
+.result-value {
+  font-family: var(--mono);
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.result-value small {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  margin-left: 4px;
+}
+
+.result.highlight {
+  border-left-color: var(--accent-amber);
+  background: linear-gradient(90deg, rgba(255,180,84,0.08) 0%, var(--bg-tertiary) 100%);
+}
+
+.result.highlight .result-value { color: var(--accent-amber); }
+
+.result.success {
+  border-left-color: var(--accent-green);
+}
+
+.result.success .result-value { color: var(--accent-green); }
+
+/* ============================================================
+   ZONES TABLE
+============================================================ */
+.zones-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.zones-table th,
+.zones-table td {
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.zones-table th {
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  font-weight: 500;
+  background: var(--bg-tertiary);
+}
+
+.zones-table td.mono { font-family: var(--mono); font-weight: 500; }
+.zones-table td.numeric { text-align: right; font-family: var(--mono); }
+
+.zones-table .zone-cell {
+  font-weight: 600;
+  position: relative;
+  padding-left: 26px;
+}
+
+.zones-table .zone-cell::before {
+  content: '';
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.zone-forbidden { color: var(--zone-forbidden); }
+.zone-forbidden::before { background: var(--zone-forbidden); box-shadow: 0 0 8px var(--zone-forbidden); }
+
+.zone-a { color: var(--zone-a); }
+.zone-a::before { background: var(--zone-a); }
+
+.zone-b { color: var(--zone-b); }
+.zone-b::before { background: var(--zone-b); }
+
+.zone-free { color: var(--zone-free); }
+.zone-free::before { background: var(--zone-free); }
+
+/* ============================================================
+   LOCATION CHECKER
+============================================================ */
+.location-row {
+  display: grid;
+  grid-template-columns: 1.5fr 100px 100px 120px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.location-row .label-input {
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-family: var(--sans);
+  font-size: 13px;
+  padding: 4px 0;
+  border-bottom: 1px dashed transparent;
+}
+
+.location-row .label-input:focus {
+  outline: none;
+  border-bottom-color: var(--border-light);
+}
+
+.location-row .dist-input {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  color: var(--accent-cyan);
+  padding: 6px 10px;
+  font-family: var(--mono);
+  font-size: 13px;
+  text-align: right;
+}
+
+.location-row .dist-input:focus {
+  outline: none;
+  border-color: var(--accent-cyan);
+}
+
+.location-row .calc-cell {
+  font-family: var(--mono);
+  text-align: right;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.location-row .zone-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 4px 10px;
+  text-align: center;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.zone-tag.forbidden {
+  background: var(--zone-forbidden);
+  color: white;
+}
+
+.zone-tag.a {
+  background: rgba(255,136,85,0.15);
+  color: var(--zone-a);
+  border: 1px solid var(--zone-a);
+}
+
+.zone-tag.b {
+  background: rgba(255,204,68,0.15);
+  color: var(--zone-b);
+  border: 1px solid var(--zone-b);
+}
+
+.zone-tag.free {
+  background: rgba(109,213,109,0.15);
+  color: var(--zone-free);
+  border: 1px solid var(--zone-free);
+}
+
+.btn-remove {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 18px;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  transition: color 0.15s;
+}
+
+.btn-remove:hover { color: var(--accent-red); }
+
+.btn-add {
+  background: transparent;
+  border: 1px dashed var(--border-light);
+  color: var(--accent-cyan);
+  padding: 12px 20px;
+  font-family: var(--mono);
+  font-size: 12px;
+  cursor: pointer;
+  margin-top: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transition: all 0.15s;
+  width: 100%;
+}
+
+.btn-add:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--accent-cyan);
+}
+
+@media (max-width: 768px) {
+  .location-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .location-row > * { font-size: 12px; }
+}
+
+/* ============================================================
+   THICKNESS LOOKUP
+============================================================ */
+.lookup-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.lookup-cell {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  padding: 12px;
+  text-align: center;
+  transition: border-color 0.15s;
+}
+
+.lookup-cell:hover { border-color: var(--border-light); }
+
+.lookup-cell .voltage {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 6px;
+}
+
+.lookup-cell .thickness {
+  font-family: var(--mono);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--accent-cyan);
+}
+
+.lookup-cell.out-of-range .thickness {
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 400;
+}
+
+/* ============================================================
+   FORMULAS
+============================================================ */
+.formula {
+  background: var(--bg-tertiary);
+  border-left: 2px solid var(--accent-cyan);
+  padding: 14px 18px;
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--text-primary);
+  margin: 12px 0;
+  letter-spacing: 0.02em;
+  overflow-x: auto;
+}
+
+.formula em {
+  color: var(--accent-amber);
+  font-style: normal;
+}
+
+/* ============================================================
+   FOOTER
+============================================================ */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 32px 0;
+  margin-top: 60px;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-family: var(--mono);
+}
+
+footer .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+footer a {
+  color: var(--accent-cyan);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--accent-cyan);
+}
+
+/* ============================================================
+   ANIMATIONS
+============================================================ */
+@keyframes pulse-cyan {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 212, 255, 0.4); }
+  50% { box-shadow: 0 0 0 6px rgba(0, 212, 255, 0); }
+}
+
+.live-indicator {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-green);
+  margin-right: 6px;
+  animation: pulse-cyan 2s ease-in-out infinite;
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   ALERT
+============================================================ */
+.alert {
+  background: linear-gradient(90deg, rgba(192, 16, 48, 0.15) 0%, var(--bg-secondary) 100%);
+  border-left: 3px solid var(--zone-forbidden);
+  padding: 16px 20px;
+  margin: 20px 0;
+  font-size: 13px;
+  display: flex;
+  gap: 12px;
+}
+
+.alert::before {
+  content: '⚠';
+  font-size: 20px;
+  color: var(--zone-forbidden);
+}
+
+.alert strong { color: var(--zone-forbidden); }
+
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <div class="brand">
+      <div class="brand-mark">RTG</div>
+      <h1>Kalkulator Osłon <span>Pb</span></h1>
+      <div class="brand-meta">
+        <span class="live-indicator"></span>PN-86/J-80001 · Prawo Atomowe Art. 17
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="container">
+    <h2>Obliczenia osłon radiologicznych dla pracowni <strong>radiografii przemysłowej</strong></h2>
+    <div class="hero-meta">
+      <span>Promieniowanie pierwotne · pkt 2.5.1.2</span>
+      <span>Promieniowanie rozproszone · pkt 2.5.2.1</span>
+      <span>Strefy kontrolowane/nadzorowane</span>
+    </div>
+  </div>
+</div>
+
+<main>
+<div class="container">
+
+  <!-- ============================================================
+       SECTION 1: DANE WEJŚCIOWE
+  ============================================================ -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-num">[01]</span>
+      <h3>Dane wejściowe</h3>
+      <span class="badge">Edytuj wartości</span>
+    </div>
+    
+    <div class="grid-3">
+      <div class="panel">
+        <div class="panel-title">Parametry lampy RTG</div>
+        <div class="form-row">
+          <label>Napięcie anody <small>U [kV]</small></label>
+          <input type="number" class="input" id="U" value="220" step="10">
+        </div>
+        <div class="form-row">
+          <label>Prąd anodowy <small>I [mA]</small></label>
+          <input type="number" class="input" id="I" value="5.3" step="0.1">
+        </div>
+        <div class="form-row">
+          <label>Czas ekspozycji <small>t₁ [s]</small></label>
+          <input type="number" class="input" id="t1" value="20" step="1">
+        </div>
+        <div class="form-row">
+          <label>Liczba ekspozycji <small>n [/tydzień]</small></label>
+          <input type="number" class="input" id="n" value="350" step="10">
+        </div>
+        <div class="form-row">
+          <label>Moc dawki D' <small>[mSv·min⁻¹·m²·mA⁻¹]</small></label>
+          <input type="number" class="input" id="Dprim" value="27" step="1">
+        </div>
+        <div class="form-row">
+          <label>Współczynnik y <small>radiografia: 1</small></label>
+          <input type="number" class="input" id="y" value="1" step="0.01">
+        </div>
+      </div>
+      
+      <div class="panel">
+        <div class="panel-title">Geometria</div>
+        <div class="form-row">
+          <label>Odległość: personel <small>l_p [m]</small></label>
+          <input type="number" class="input" id="lp" value="5" step="0.5">
+        </div>
+        <div class="form-row">
+          <label>Odległość: ogół ludności <small>l_l [m]</small></label>
+          <input type="number" class="input" id="ll" value="8" step="0.5">
+        </div>
+        <div class="form-row">
+          <label>Współczynnik U <small>użytkowanie wiązki</small></label>
+          <input type="number" class="input" id="Uw" value="1" step="0.1">
+        </div>
+        <div class="form-row">
+          <label>T personel <small>obecność</small></label>
+          <input type="number" class="input" id="Tp" value="1" step="0.05">
+        </div>
+        <div class="form-row">
+          <label>T ogół ludności <small>obecność</small></label>
+          <input type="number" class="input" id="Tl" value="0.25" step="0.05">
+        </div>
+      </div>
+      
+      <div class="panel">
+        <div class="panel-title">Kryteria dawkowe</div>
+        <div class="form-row">
+          <label>Dawka graniczna personel <small>[mSv/rok]</small></label>
+          <input type="number" class="input" id="Hp" value="6" step="0.5">
+        </div>
+        <div class="form-row">
+          <label>Dawka graniczna ogół ludności <small>[mSv/rok]</small></label>
+          <input type="number" class="input" id="Hl" value="0.3" step="0.1">
+        </div>
+        <div class="form-row">
+          <label>Liczba tygodni <small>[tyg/rok]</small></label>
+          <input type="number" class="input" id="Ntyg" value="50" step="1">
+        </div>
+        <div class="form-row">
+          <label>C₁(0) dla wybranego U <small>[µSv·h⁻¹·m²·mA⁻¹]</small></label>
+          <input type="number" class="input" id="C10" value="850" step="50">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SECTION 2: PROMIENIOWANIE PIERWOTNE
+  ============================================================ -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-num">[02]</span>
+      <h3>Promieniowanie pierwotne</h3>
+      <span class="badge">PN-86 · pkt 2.5.1.2</span>
+    </div>
+    
+    <div class="formula">k = (D' · I · t · y) / (D · l²)<br>
+      gdzie t = T · U · t₀ &nbsp;[min], &nbsp; D — tygodniowa dawka graniczna [mSv/tydz], &nbsp; l — odległość [m]
+    </div>
+    
+    <div class="grid-2">
+      <div class="panel">
+        <div class="panel-title">Personel</div>
+        <div class="result-grid">
+          <div class="result">
+            <div class="result-label">Czas ekspozycji w tygodniu</div>
+            <div class="result-value" id="t0_min">—<small>min</small></div>
+          </div>
+          <div class="result">
+            <div class="result-label">Tygodniowa dawka graniczna</div>
+            <div class="result-value" id="Dp_tyg">—<small>mSv/tydz</small></div>
+          </div>
+          <div class="result highlight">
+            <div class="result-label">Krotność osłabienia k</div>
+            <div class="result-value" id="kp">—</div>
+          </div>
+          <div class="result success">
+            <div class="result-label">Wymagana grubość Pb</div>
+            <div class="result-value" id="xp">—<small>mm Pb</small></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="panel">
+        <div class="panel-title">Ogół ludności</div>
+        <div class="result-grid">
+          <div class="result">
+            <div class="result-label">Czas ekspozycji w tygodniu</div>
+            <div class="result-value" id="t0_min_l">—<small>min</small></div>
+          </div>
+          <div class="result">
+            <div class="result-label">Tygodniowa dawka graniczna</div>
+            <div class="result-value" id="Dl_tyg">—<small>mSv/tydz</small></div>
+          </div>
+          <div class="result highlight">
+            <div class="result-label">Krotność osłabienia k</div>
+            <div class="result-value" id="kl">—</div>
+          </div>
+          <div class="result success">
+            <div class="result-label">Wymagana grubość Pb</div>
+            <div class="result-value" id="xl">—<small>mm Pb</small></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SECTION 3: WYSZUKIWARKA GRUBOŚCI Pb
+  ============================================================ -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-num">[03]</span>
+      <h3>Wyszukiwarka grubości Pb (Rys. 1 normy)</h3>
+      <span class="badge">Konserwatywny odczyt</span>
+    </div>
+    
+    <div class="panel">
+      <div class="panel-title">Dla zadanego k znajdź wymaganą grubość Pb</div>
+      <div class="form-row" style="grid-template-columns: 1fr 200px;">
+        <label>Wartość k (krotność osłabienia)</label>
+        <input type="number" class="input" id="lookup_k" value="5565" step="100">
+      </div>
+      <div class="lookup-grid" id="lookup_grid_R1"></div>
+      <p style="margin-top: 16px; font-size: 12px; color: var(--text-muted);">
+        Krzywe odczytane z normy PN-86/J-80001 (Rys. 1) z 5% zapasem bezpieczeństwa.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SECTION 4: STREFY A/B
+  ============================================================ -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-num">[04]</span>
+      <h3>Klasyfikacja stref pracowników</h3>
+      <span class="badge">Prawo Atomowe Art. 14, 17</span>
+    </div>
+    
+    <div class="alert">
+      <div>
+        <strong>Założenie:</strong> wiązka pierwotna skierowana w dół, pracownicy narażeni TYLKO na 
+        promieniowanie rozproszone, BEZ OSŁON. Klasyfikacja oparta o roczną dawkę skuteczną.
+      </div>
+    </div>
+    
+    <div class="grid-2">
+      <div class="panel">
+        <div class="panel-title">Progi dawkowe</div>
+        <table class="zones-table">
+          <thead>
+            <tr>
+              <th>Strefa</th>
+              <th>Próg [mSv/rok]</th>
+              <th>Tygodniowo [µSv]</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="zone-cell zone-forbidden">⛔ ZAKAZ</td>
+              <td class="numeric">&gt; 20</td>
+              <td class="numeric">&gt; 400</td>
+            </tr>
+            <tr>
+              <td class="zone-cell zone-a">Strefa A</td>
+              <td class="numeric">6 – 20</td>
+              <td class="numeric">120 – 400</td>
+            </tr>
+            <tr>
+              <td class="zone-cell zone-b">Strefa B</td>
+              <td class="numeric">1 – 6</td>
+              <td class="numeric">20 – 120</td>
+            </tr>
+            <tr>
+              <td class="zone-cell zone-free">Wolny</td>
+              <td class="numeric">≤ 1</td>
+              <td class="numeric">≤ 20</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="panel">
+        <div class="panel-title">Graniczne odległości od źródła</div>
+        <table class="zones-table" id="zone_distances">
+          <thead>
+            <tr>
+              <th>Strefa</th>
+              <th>Próg D</th>
+              <th>l [m]</th>
+              <th>Zaokrągl.</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- wypełniane przez JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <div class="panel" style="margin-top: 24px;">
+      <div class="panel-title">Sprawdzenie dla konkretnych lokalizacji</div>
+      <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">
+        Wpisz nazwę i odległość od źródła rozpraszania — automatyczne wyznaczenie strefy.
+      </p>
+      <div id="locations_container"></div>
+      <button class="btn-add" onclick="addLocation()">+ Dodaj lokalizację</button>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SECTION 5: WZORY I PODSTAWA
+  ============================================================ -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-num">[05]</span>
+      <h3>Wzory i podstawa prawna</h3>
+    </div>
+    
+    <div class="grid-2">
+      <div class="panel">
+        <div class="panel-title">Wzory PN-86/J-80001</div>
+        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">Promieniowanie pierwotne (pkt 2.5.1.2):</div>
+        <div class="formula"><em>k</em> = (D' · I · t · y) / (D · l²)</div>
+        <div style="font-size: 12px; color: var(--text-muted); margin: 12px 0 8px;">Promieniowanie rozproszone (pkt 2.5.2.1):</div>
+        <div class="formula"><em>C₁</em> = (D · l²) / (t · I), &nbsp;&nbsp; t [h], D [µSv]</div>
+        <div style="font-size: 12px; color: var(--text-muted); margin: 12px 0 8px;">Strefy bez osłon:</div>
+        <div class="formula"><em>l_graniczna</em> = √(C₁₀ · I · t_rok / (D_próg · 1000))</div>
+      </div>
+      
+      <div class="panel">
+        <div class="panel-title">Podstawa prawna</div>
+        <div style="font-size: 13px; line-height: 1.8;">
+          <strong style="color: var(--accent-cyan);">Art. 14 ust. 1</strong> — dawki graniczne:<br>
+          &nbsp;&nbsp;pkt 1) pracownicy: 20 mSv/rok<br>
+          &nbsp;&nbsp;pkt 2) ogół ludności: 1 mSv/rok<br><br>
+          <strong style="color: var(--accent-cyan);">Art. 17 ust. 1</strong> — kategorie pracowników:<br>
+          &nbsp;&nbsp;1) kategoria A: &gt; 6 mSv/rok<br>
+          &nbsp;&nbsp;2) kategoria B: ≤ 6 mSv/rok<br><br>
+          <strong style="color: var(--accent-cyan);">Art. 18</strong> — strefy:<br>
+          &nbsp;&nbsp;kontrolowana = możliwość kategorii A<br>
+          &nbsp;&nbsp;nadzorowana = możliwość kategorii B
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+</main>
+
+<footer>
+  <div class="container">
+    <div>
+      Kalkulator wykonany na podstawie obliczeń wg <strong>PN-86/J-80001</strong>.<br>
+      Dane referencyjne: Rys. 1 i Rys. 3 normy, parametry dawkowe z Prawa Atomowego (Dz.U. 2023 poz. 1173).
+    </div>
+    <div style="text-align: right;">
+      Created by <span style="color: var(--accent-cyan);">Borcios</span> · Build 2026.05<br>
+      <span style="font-size: 10px;">Zawsze weryfikuj wyniki z papierową normą</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ============================================================
+// DANE KRZYWYCH Z NORMY (Rys. 1 - krotność k)
+// ============================================================
+// Punkty (x [mm Pb], k) odczytane z papierowej normy PN-86/J-80001
+const curves_R1 = {
+  50: [[0.2, 10], [0.3, 100], [0.35, 500], [0.4, 1000], [0.5, 5000],
+       [0.55, 10000], [0.6, 50000], [0.65, 100000], [0.7, 200000]],
+  75: [[0.2, 10], [0.4, 100], [0.6, 500], [0.8, 1500], [1.0, 5000],
+       [1.2, 15000], [1.5, 50000], [1.8, 150000], [2.0, 200000]],
+  100: [[0.2, 10], [0.5, 50], [0.8, 200], [1.2, 1000], [1.6, 3000],
+        [2.0, 10000], [2.5, 30000], [3.0, 100000], [3.5, 200000]],
+  150: [[0.2, 10], [0.5, 30], [1.0, 200], [1.5, 1000], [2.0, 3000],
+        [2.5, 10000], [3.0, 30000], [3.5, 100000], [4.0, 200000]],
+  200: [[0.2, 10], [0.5, 30], [1.0, 100], [1.5, 300], [2.0, 700],
+        [3.0, 3000], [4.0, 10000], [5.0, 30000], [6.0, 70000],
+        [7.0, 150000], [7.5, 200000]],
+  250: [[0.2, 10], [0.6, 30], [1.2, 100], [2.0, 300], [3.0, 700],
+        [4.0, 1500], [5.0, 3000], [6.5, 10000], [8.0, 30000],
+        [9.5, 70000], [11.0, 150000], [12.0, 200000]],
+  300: [[0.2, 10], [0.7, 30], [1.5, 100], [2.5, 300], [4.0, 1000],
+        [5.5, 3000], [7.0, 10000], [8.5, 20000], [11.0, 50000],
+        [13.0, 100000], [15.5, 200000], [16.5, 250000]],
+  400: [[0.2, 10], [1.5, 50], [3.0, 100], [5.0, 300], [8.0, 1000],
+        [11.0, 3000], [15.0, 10000], [18.0, 20000], [22.0, 50000],
+        [26.0, 100000], [30.0, 200000], [32.0, 250000]],
+  500: [[0.2, 1], [2.0, 10], [5.0, 30], [8.0, 100], [12.5, 300],
+        [17.5, 1000], [22.5, 3000], [27.5, 10000], [32.5, 20000],
+        [37.5, 30000], [42.5, 40000], [50.0, 60000]]
+};
+
+const SAFETY = 1.05;  // 5% zapas bezpieczeństwa
+
+// ============================================================
+// FUNKCJE OBLICZENIOWE
+// ============================================================
+
+// Interpolacja x dla zadanego k (wyszukuje pierwsze x gdzie k(x) >= k_target)
+function findThicknessForK(k_target, curve) {
+  if (!curve || curve.length === 0) return null;
+  
+  // Tabela rośnie monotonicznie
+  // Szukamy konserwatywnie: pierwsze x dla którego k(x) >= k_target
+  for (let i = 0; i < curve.length; i++) {
+    const k_with_safety = curve[i][1] / SAFETY;  // korekta o zapas
+    if (k_with_safety >= k_target) {
+      // Interpolacja liniowa w skali półlog dla precyzji
+      if (i === 0) return curve[0][0];
+      const [x1, k1] = curve[i-1];
+      const [x2, k2] = curve[i];
+      const log1 = Math.log10(k1 / SAFETY);
+      const log2 = Math.log10(k2 / SAFETY);
+      const log_t = Math.log10(k_target);
+      if (log2 === log1) return x2;
+      const t = (log_t - log1) / (log2 - log1);
+      return x1 + t * (x2 - x1);
+    }
+  }
+  return null;  // poza zakresem
+}
+
+// Główna funkcja przeliczająca cały kalkulator
+function recalc() {
+  // Pobierz wartości
+  const U = parseFloat(document.getElementById('U').value) || 0;
+  const I = parseFloat(document.getElementById('I').value) || 0;
+  const t1 = parseFloat(document.getElementById('t1').value) || 0;
+  const n = parseFloat(document.getElementById('n').value) || 0;
+  const Dprim = parseFloat(document.getElementById('Dprim').value) || 0;
+  const y = parseFloat(document.getElementById('y').value) || 0;
+  const lp = parseFloat(document.getElementById('lp').value) || 0;
+  const ll = parseFloat(document.getElementById('ll').value) || 0;
+  const Uw = parseFloat(document.getElementById('Uw').value) || 0;
+  const Tp = parseFloat(document.getElementById('Tp').value) || 0;
+  const Tl = parseFloat(document.getElementById('Tl').value) || 0;
+  const Hp = parseFloat(document.getElementById('Hp').value) || 0;
+  const Hl = parseFloat(document.getElementById('Hl').value) || 0;
+  const Ntyg = parseFloat(document.getElementById('Ntyg').value) || 50;
+  const C10 = parseFloat(document.getElementById('C10').value) || 0;
+  
+  // === Promieniowanie pierwotne ===
+  const t0_min = (n * t1) / 60;  // min/tydz
+  const t0_h = t0_min / 60;       // h/tydz
+  const t_rok_h = t0_h * Ntyg;    // h/rok
+  
+  const Dp_tyg = Hp / Ntyg;       // mSv/tydz personel
+  const Dl_tyg = Hl / Ntyg;       // mSv/tydz ogół
+  
+  const tp_min = Tp * Uw * t0_min;
+  const tl_min = Tl * Uw * t0_min;
+  
+  // k = (D' · I · t · y) / (D · l²)
+  const kp = (Dprim * I * tp_min * y) / (Dp_tyg * lp * lp);
+  const kl = (Dprim * I * tl_min * y) / (Dl_tyg * ll * ll);
+  
+  // Wybór odpowiedniej krzywej (najbliższa zaokrąglona w górę)
+  const voltageOptions = Object.keys(curves_R1).map(Number).sort((a,b) => a-b);
+  const closestU = voltageOptions.find(v => v >= U) || voltageOptions[voltageOptions.length-1];
+  
+  // Grubość Pb dla obu stref
+  const xp = findThicknessForK(kp, curves_R1[closestU]);
+  const xl = findThicknessForK(kl, curves_R1[closestU]);
+  
+  // Wyświetl wyniki
+  setVal('t0_min', t0_min.toFixed(2), 'min');
+  setVal('Dp_tyg', Dp_tyg.toFixed(4), 'mSv/tydz');
+  setVal('kp', formatNumber(kp), null);
+  setVal('xp', xp ? xp.toFixed(2) : 'poza zakresem', xp ? 'mm Pb' : null);
+  
+  setVal('t0_min_l', tl_min.toFixed(2), 'min');
+  setVal('Dl_tyg', Dl_tyg.toFixed(4), 'mSv/tydz');
+  setVal('kl', formatNumber(kl), null);
+  setVal('xl', xl ? xl.toFixed(2) : 'poza zakresem', xl ? 'mm Pb' : null);
+  
+  // === Wyszukiwarka grubości ===
+  const lookup_k = parseFloat(document.getElementById('lookup_k').value) || 0;
+  renderLookupGrid(lookup_k);
+  
+  // === Strefy A/B ===
+  // l_graniczna = √(C10 · I · t_rok / (D_próg · 1000))
+  function distForDose(D_year) {
+    return Math.sqrt(C10 * I * t_rok_h / (D_year * 1000));
+  }
+  
+  const l20 = distForDose(20);
+  const l6 = distForDose(6);
+  const l1 = distForDose(1);
+  const lFree = distForDose(Hl);
+  
+  const tbody = document.querySelector('#zone_distances tbody');
+  tbody.innerHTML = `
+    <tr>
+      <td class="zone-cell zone-forbidden">⛔ ZAKAZ</td>
+      <td class="numeric">20</td>
+      <td class="numeric">${l20.toFixed(2)}</td>
+      <td class="numeric"><strong>${Math.ceil(l20*2)/2}</strong></td>
+    </tr>
+    <tr>
+      <td class="zone-cell zone-a">Strefa A</td>
+      <td class="numeric">6</td>
+      <td class="numeric">${l6.toFixed(2)}</td>
+      <td class="numeric"><strong>${Math.ceil(l6*2)/2}</strong></td>
+    </tr>
+    <tr>
+      <td class="zone-cell zone-b">Strefa B</td>
+      <td class="numeric">1</td>
+      <td class="numeric">${l1.toFixed(2)}</td>
+      <td class="numeric"><strong>${Math.ceil(l1*2)/2}</strong></td>
+    </tr>
+    <tr>
+      <td class="zone-cell zone-free">Wolny</td>
+      <td class="numeric">${Hl}</td>
+      <td class="numeric">${lFree.toFixed(2)}</td>
+      <td class="numeric"><strong>${Math.ceil(lFree*2)/2}</strong></td>
+    </tr>
+  `;
+  
+  // Lokalizacje
+  updateLocationRows();
+}
+
+function setVal(id, value, unit) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (unit) {
+    el.innerHTML = `${value}<small>${unit}</small>`;
+  } else {
+    el.textContent = value;
+  }
+  el.classList.add('fade-in');
+  setTimeout(() => el.classList.remove('fade-in'), 300);
+}
+
+function formatNumber(n) {
+  if (!isFinite(n)) return '—';
+  if (n >= 100000) return n.toExponential(2);
+  if (n >= 1000) return Math.round(n).toLocaleString('pl-PL');
+  if (n >= 100) return n.toFixed(0);
+  if (n >= 10) return n.toFixed(1);
+  return n.toFixed(2);
+}
+
+function renderLookupGrid(k_target) {
+  const grid = document.getElementById('lookup_grid_R1');
+  grid.innerHTML = '';
+  
+  for (const U of [50, 75, 100, 150, 200, 250, 300, 400, 500]) {
+    const x = findThicknessForK(k_target, curves_R1[U]);
+    const cell = document.createElement('div');
+    cell.className = 'lookup-cell' + (x === null ? ' out-of-range' : '');
+    cell.innerHTML = `
+      <div class="voltage">${U} kV</div>
+      <div class="thickness">${x === null ? 'poza zakresem' : x.toFixed(2) + ' mm'}</div>
+    `;
+    grid.appendChild(cell);
+  }
+}
+
+// ============================================================
+// LOKALIZACJE - dynamiczna lista
+// ============================================================
+let locationCounter = 0;
+const defaultLocations = [
+  ['Operator przy aparacie', 1.0],
+  ['Pomocnik / asystent', 2.0],
+  ['Stanowisko pracy', 3.0],
+  ['Granica pracowni', 5.0],
+  ['Sterownia / korytarz', 7.0],
+  ['Ściana zewnętrzna', 8.0],
+  ['Sąsiednie pomieszczenie', 10.0],
+];
+
+function addLocation(label = 'Nowa lokalizacja', distance = 5.0) {
+  const container = document.getElementById('locations_container');
+  const id = ++locationCounter;
+  const row = document.createElement('div');
+  row.className = 'location-row';
+  row.id = `loc-${id}`;
+  row.innerHTML = `
+    <input type="text" class="label-input" value="${label}" data-id="${id}">
+    <input type="number" class="dist-input" value="${distance}" step="0.5" data-id="${id}">
+    <div class="calc-cell" data-field="ddot">—</div>
+    <div class="calc-cell" data-field="dyear">— mSv/rok</div>
+    <div class="zone-tag" data-field="zone">—</div>
+    <button class="btn-remove" onclick="removeLocation(${id})" title="Usuń">×</button>
+  `;
+  container.appendChild(row);
+  
+  // Listenery na zmianę odległości
+  row.querySelector('.dist-input').addEventListener('input', updateLocationRows);
+  
+  updateLocationRows();
+}
+
+function removeLocation(id) {
+  const row = document.getElementById(`loc-${id}`);
+  if (row) row.remove();
+}
+
+function updateLocationRows() {
+  const I = parseFloat(document.getElementById('I').value) || 0;
+  const C10 = parseFloat(document.getElementById('C10').value) || 0;
+  const t1 = parseFloat(document.getElementById('t1').value) || 0;
+  const n = parseFloat(document.getElementById('n').value) || 0;
+  const Ntyg = parseFloat(document.getElementById('Ntyg').value) || 50;
+  const Hl = parseFloat(document.getElementById('Hl').value) || 0.3;
+  
+  const t_rok_h = (n * t1 / 3600) * Ntyg;
+  
+  document.querySelectorAll('.location-row').forEach(row => {
+    const distInput = row.querySelector('.dist-input');
+    const l = parseFloat(distInput.value) || 0;
+    if (l <= 0) return;
+    
+    // Ḋ = C10 · I / l²
+    const d_dot = C10 * I / (l * l);
+    // D_rok = Ḋ · t_rok / 1000
+    const d_year = d_dot * t_rok_h / 1000;
+    
+    row.querySelector('[data-field="ddot"]').textContent = `${d_dot.toFixed(1)} µSv/h`;
+    row.querySelector('[data-field="dyear"]').textContent = `${d_year.toFixed(3)} mSv/rok`;
+    
+    // Klasyfikacja
+    const zoneEl = row.querySelector('[data-field="zone"]');
+    zoneEl.className = 'zone-tag';
+    if (d_year > 20) {
+      zoneEl.classList.add('forbidden');
+      zoneEl.textContent = '⛔ ZAKAZ';
+    } else if (d_year > 6) {
+      zoneEl.classList.add('a');
+      zoneEl.textContent = 'STREFA A';
+    } else if (d_year > 1) {
+      zoneEl.classList.add('b');
+      zoneEl.textContent = 'STREFA B';
+    } else if (d_year > Hl) {
+      zoneEl.classList.add('free');
+      zoneEl.textContent = 'Wolny (powyżej ogółu)';
+    } else {
+      zoneEl.classList.add('free');
+      zoneEl.textContent = 'Wolny — bezpieczny';
+    }
+  });
+}
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  // Domyślne lokalizacje
+  defaultLocations.forEach(([label, dist]) => addLocation(label, dist));
+  
+  // Pierwsze przeliczenie
+  recalc();
+  
+  // Listener na każde pole
+  document.querySelectorAll('.input').forEach(el => {
+    el.addEventListener('input', recalc);
+  });
+});
+</script>
+
+</body>
+</html>
